@@ -77,6 +77,7 @@ class _banCheck extends \IPS\Widget
 .banlyWidget__result{position:relative;overflow:hidden;padding:10px 12px 10px 14px;border-radius:12px;background:rgba(0,0,0,.28);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
 .banlyWidget__result::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#ea5942}
 .banlyWidget__result.is-clear::before{background:#22c55e}
+.banlyWidget__result.is-warn::before{background:#f59e0b}
 .banlyWidget__player{display:flex;align-items:center;gap:10px;min-width:0}
 .banlyWidget img.banlyWidget__avatar,.banlyWidget__avatar--empty{width:48px;height:48px;max-width:48px;border-radius:10px;object-fit:cover;flex:0 0 auto;background:rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
 .banlyWidget__avatar--empty{display:flex;align-items:center;justify-content:center;color:#9a9aa3;font-size:13px;font-weight:650}
@@ -84,6 +85,11 @@ class _banCheck extends \IPS\Widget
 .banlyWidget__nick{color:#f4f4f5;font-size:14px;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .banlyWidget__count{margin-top:3px;color:#fca5a5;font-size:12px;font-weight:500;line-height:1.3}
 .banlyWidget__result.is-clear .banlyWidget__count{color:#86efac}
+.banlyWidget__ecd{margin-top:2px;font-size:12px;font-weight:500;line-height:1.3}
+.banlyWidget__ecd.is-ok{color:#86efac}
+.banlyWidget__ecd.is-bad{color:#fca5a5}
+.banlyWidget__ecd.is-warn{color:#fcd34d}
+.banlyWidget__ecd.is-muted{color:#9a9aa3}
 .banlyWidget__num{font-weight:700;font-variant-numeric:tabular-nums}
 .banlyWidget a.banlyWidget__link{display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.08);background:none;box-shadow:none;color:#f4a090;font-size:12px;font-weight:600;line-height:1.2;text-decoration:none}
 .banlyWidget a.banlyWidget__link:hover{color:#fff}
@@ -94,6 +100,10 @@ class _banCheck extends \IPS\Widget
 .banlyWidget--light .banlyWidget__nick{color:#1c1c1f}
 .banlyWidget--light .banlyWidget__count{color:#c2412d}
 .banlyWidget--light .banlyWidget__result.is-clear .banlyWidget__count{color:#15803d}
+.banlyWidget--light .banlyWidget__ecd.is-ok{color:#15803d}
+.banlyWidget--light .banlyWidget__ecd.is-bad{color:#c2412d}
+.banlyWidget--light .banlyWidget__ecd.is-warn{color:#b45309}
+.banlyWidget--light .banlyWidget__ecd.is-muted{color:#5c5c66}
 .banlyWidget--light .banlyWidget__result{background:rgba(0,0,0,.04);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
 .banlyWidget--light .banlyWidget__status.is-error{color:#c2412d}
 .banlyWidget--light .banlyWidget__pending{color:#5c5c66}
@@ -126,11 +136,13 @@ var button=root.querySelector('.banlyWidget__btn');
 var status=root.querySelector('.banlyWidget__status');
 var endpoint=root.getAttribute('data-endpoint');
 var csrf=root.getAttribute('data-csrf');
-function setStatus(html,kind){status.className='banlyWidget__status'+(kind?' is-'+kind:'');status.innerHTML=html||'';}
+function setStatus(html,kind){status.className='banlyWidget__status'+(kind?' is-'+kind:'');if(kind==='error'){status.textContent=String(html||'');return;}status.innerHTML=html||'';}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function initials(name){var parts=String(name||'').trim().split(/\\s+/).filter(Boolean).slice(0,2);var s=parts.map(function(p){return p.charAt(0);}).join('');return (s||'?').toUpperCase().slice(0,2);}
 function countHtml(n){n=Number(n)||0;if(n<=0)return 'Brak aktywnych banów';var word=n===1?'sieć z aktywnym banem':'sieci z aktywnym banem';return '<span class="banlyWidget__num">'+n+'</span> '+word;}
-function resultHtml(data){var n=Number(data.activeNetworks)||0;var name=String(data.personaName||'').trim()||String(data.q||'').trim();var avatar=String(data.avatarUrl||'');if(!/^https:\\/\\//i.test(avatar))avatar='';var tone=n>0?'is-bad':'is-clear';var face=avatar?'<img class="banlyWidget__avatar" src="'+esc(avatar)+'" alt="" width="48" height="48">':'<span class="banlyWidget__avatar banlyWidget__avatar--empty" aria-hidden="true">'+esc(initials(name))+'</span>';var link='';if(data.detailsUrl){var safeUrl=String(data.detailsUrl).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');link='<a class="banlyWidget__link" href="'+safeUrl+'" target="_blank" rel="noopener noreferrer">Szczegóły na Banly.pl <span class="banlyWidget__go" aria-hidden="true">\\u2192</span></a>';}return '<div class="banlyWidget__result '+tone+'"><div class="banlyWidget__player">'+face+'<div class="banlyWidget__meta"><div class="banlyWidget__nick">'+esc(name)+'</div><div class="banlyWidget__count">'+countHtml(n)+'</div></div></div>'+link+'</div>';}
+function pol(n,one,few,many){var a=n%10,b=n%100;if(n===1)return one;if(a>=2&&a<=4&&(b<12||b>14))return few;return many;}
+function ecdSummary(scan){if(!scan||typeof scan!=='object')return null;if(String(scan.unavailableHint||'').trim())return {cls:'is-muted',text:'ECD: niedostępne'};var entries=Array.isArray(scan.entries)?scan.entries:[];var danger=0,warn=0,ok=0;entries.forEach(function(row){var s=String(row&&row.resultStatus||'').toLowerCase();if(s==='danger')danger++;else if(s==='warning')warn++;else if(s==='success')ok++;});if(!scan.found&&danger+warn+ok===0)return {cls:'is-ok',text:'ECD: brak wpisu'};var parts=[];if(danger)parts.push(danger+' '+pol(danger,'wykrycie','wykrycia','wykryć'));if(warn)parts.push(warn+' '+pol(warn,'podejrzany','podejrzane','podejrzanych'));if(!danger&&!warn&&ok)parts.push('czysto');if(!parts.length){var n=Number(scan.totalScans)||entries.length;parts.push(n?(n+' '+pol(n,'raport','raporty','raportów')):'wpis');}return {cls:danger?'is-bad':(warn?'is-warn':'is-ok'),text:'ECD: '+parts.join(', ')};}
+function resultHtml(data){var n=Number(data.activeNetworks)||0;var name=String(data.personaName||'').trim()||String(data.q||'').trim();var avatar=String(data.avatarUrl||'');if(!/^https:\\/\\//i.test(avatar))avatar='';var ecd=ecdSummary(data.ecdScan);var tone=n>0||(ecd&&ecd.cls==='is-bad')?'is-bad':(ecd&&ecd.cls==='is-warn'?'is-warn':'is-clear');var face=avatar?'<img class="banlyWidget__avatar" src="'+esc(avatar)+'" alt="" width="48" height="48">':'<span class="banlyWidget__avatar banlyWidget__avatar--empty" aria-hidden="true">'+esc(initials(name))+'</span>';var ecdLine=ecd?'<div class="banlyWidget__ecd '+ecd.cls+'">'+esc(ecd.text)+'</div>':'';var link='';if(data.detailsUrl){var safeUrl=String(data.detailsUrl).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');link='<a class="banlyWidget__link" href="'+safeUrl+'" target="_blank" rel="noopener noreferrer">Szczegóły na Banly.pl <span class="banlyWidget__go" aria-hidden="true">\\u2192</span></a>';}return '<div class="banlyWidget__result '+tone+'"><div class="banlyWidget__player">'+face+'<div class="banlyWidget__meta"><div class="banlyWidget__nick">'+esc(name)+'</div><div class="banlyWidget__count">'+countHtml(n)+'</div>'+ecdLine+'</div></div>'+link+'</div>';}
 form.addEventListener('submit',function(ev){
 ev.preventDefault();
 var q=(input.value||'').trim();

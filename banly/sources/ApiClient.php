@@ -110,7 +110,7 @@ class _ApiClient
 			$canonical = $steamId64;
 		}
 
-		return array(
+		$out = array(
 			'ok' => true,
 			'q' => $canonical,
 			'personaName' => $personaName,
@@ -118,5 +118,10 @@ class _ApiClient
 			'activeNetworks' => $activeNetworks,
 			'detailsUrl' => 'https://banly.pl/check?' . http_build_query( array( 'q' => $canonical ) ),
 		);
+		if ( isset( $data['ecdScan'] ) && is_array( $data['ecdScan'] ) )
+		{
+			$out['ecdScan'] = $data['ecdScan'];
+		}
+		return $out;
 	}
 }

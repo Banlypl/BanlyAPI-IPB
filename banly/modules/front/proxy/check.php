@@ -36,7 +36,11 @@ class _check extends \IPS\Dispatcher\Controller
 
 		if ( empty( $result['ok'] ) )
 		{
-			$error = isset( $result['error'] ) ? (string) $result['error'] : 'error';
+			$error = isset( $result['error'] ) ? (string) $result['error'] : 'upstream';
+			if ( $error !== 'empty' && $error !== 'config' && $error !== 'upstream' )
+			{
+				$error = 'upstream';
+			}
 			\IPS\Output::i()->json( array(
 				'ok' => false,
 				'error' => $error,
@@ -45,14 +49,19 @@ class _check extends \IPS\Dispatcher\Controller
 			return;
 		}
 
-		\IPS\Output::i()->json( array(
+		$payload = array(
 			'ok' => true,
 			'q' => $result['q'],
 			'personaName' => isset( $result['personaName'] ) ? (string) $result['personaName'] : '',
 			'avatarUrl' => isset( $result['avatarUrl'] ) ? (string) $result['avatarUrl'] : '',
 			'activeNetworks' => (int) $result['activeNetworks'],
 			'detailsUrl' => $result['detailsUrl'],
-		) );
+		);
+		if ( isset( $result['ecdScan'] ) && is_array( $result['ecdScan'] ) )
+		{
+			$payload['ecdScan'] = $result['ecdScan'];
+		}
+		\IPS\Output::i()->json( $payload );
 	}
 
 	protected function publicErrorMessage( $error )
@@ -63,10 +72,8 @@ class _check extends \IPS\Dispatcher\Controller
 				return 'Podaj SteamID.';
 			case 'config':
 				return 'Widget Banly nie jest skonfigurowany (brak klucza API).';
-			case 'upstream':
-				return 'Nie udało się sprawdzić. Spróbuj później.';
 			default:
-				return $error !== '' ? $error : 'Nie udało się sprawdzić. Spróbuj później.';
+				return 'Nie udało się sprawdzić. Spróbuj później.';
 		}
 	}
 }
