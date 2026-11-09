@@ -1,0 +1,11 @@
+{
+	"settings": {
+		"settings": {
+			"tab": "banlyapi",
+			"controller": "settings",
+			"do": "",
+			"restriction": "",
+			"subcontrollers": ""
+		}
+	}
+}

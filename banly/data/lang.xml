@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language>
+	<app key="banlyapi" version="10001">
+		<word key="__app_banlyapi" js="0">Banly</word>
+		<word key="menutab__banlyapi" js="0">Banly</word>
+		<word key="menutab__banlyapi_icon" js="0">shield</word>
+		<word key="menu__banlyapi_settings" js="0">Banly</word>
+		<word key="menu__banlyapi_settings_settings" js="0">Ustawienia API</word>
+		<word key="module__banlyapi_proxy" js="0">Proxy</word>
+		<word key="module__banlyapi_settings" js="0">Ustawienia</word>
+		<word key="block_banCheck" js="0">Banly Checker</word>
+		<word key="block_banCheck_desc" js="0">Szybkie sprawdzenie liczby sieci z aktywnym banem (Banly.pl).</word>
+		<word key="banly_settings_title" js="0">Banly</word>
+		<word key="banly_settings_header" js="0">Ustawienia API</word>
+		<word key="banly_api_key" js="0">Klucz API Banly</word>
+		<word key="banly_api_key_desc" js="0"><![CDATA[Po klucz zgłoś się do <a href="https://discord.com/users/411086675998015488" target="_blank" rel="noopener noreferrer">mT</a>.<br>Nigdy nie udostępniaj swojego klucza!]]></word>
+	</app>
+</language>

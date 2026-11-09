@@ -1,0 +1,16 @@
+{
+	"front": {
+		"proxy": {
+			"default_controller": "check",
+			"protected": 0,
+			"default": 0
+		}
+	},
+	"admin": {
+		"settings": {
+			"default_controller": "settings",
+			"protected": 0,
+			"default": 1
+		}
+	}
+}
