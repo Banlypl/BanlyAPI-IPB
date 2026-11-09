@@ -31,3 +31,13 @@ Nigdy nie udostępniaj swojego klucza.
 ## Wymagania
 
 Invision Community 4.7.
+
+## Modyfikacja
+
+Wygląd możesz zmienić w CSS motywu. Klasy:
+
+```
+.banlyWidget__row
+.banlyWidget__input
+.banlyWidget__btn
+```
