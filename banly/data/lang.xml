@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <language>
-	<app key="banlyapi" version="10003">
+	<app key="banlyapi" version="10004">
 		<word key="__app_banlyapi" js="0">Banly</word>
 		<word key="menutab__banlyapi" js="0">Banly</word>
 		<word key="menutab__banlyapi_icon" js="0">shield</word>

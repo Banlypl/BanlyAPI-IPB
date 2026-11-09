@@ -18,7 +18,7 @@ class _ApiClient
 			return array( 'ok' => false, 'error' => 'config' );
 		}
 
-		$url = 'https://banly.pl/api/v2/bans?' . http_build_query( array( 'q' => $query ) );
+		$url = 'https://banly.pl/api/v2/widget?' . http_build_query( array( 'q' => $query ) );
 
 		try
 		{

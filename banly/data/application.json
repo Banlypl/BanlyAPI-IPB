@@ -2,8 +2,8 @@
 	"application_title": "Banly",
 	"app_directory": "banlyapi",
 	"app_author": "Banly.pl",
-	"app_version": "1.0.3",
-	"app_long_version": 10003,
+	"app_version": "1.0.4",
+	"app_long_version": 10004,
 	"app_protected": 0,
 	"app_website": "https://github.com/Banlypl/BanlyAPI-IPB",
 	"app_update_check": "https://raw.githubusercontent.com/Banlypl/BanlyAPI-IPB/main/updatecheck.json"
