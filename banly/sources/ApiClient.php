@@ -110,13 +110,23 @@ class _ApiClient
 			$canonical = $steamId64;
 		}
 
+		$detailsUrl = 'https://banly.pl/';
+		if ( isset( $data['detailsUrl'] ) && is_string( $data['detailsUrl'] ) )
+		{
+			$candidate = trim( $data['detailsUrl'] );
+			if ( preg_match( '#^https://(?:www\.)?banly\.pl/s/[A-Za-z0-9_-]{8,64}$#', $candidate ) )
+			{
+				$detailsUrl = $candidate;
+			}
+		}
+
 		$out = array(
 			'ok' => true,
 			'q' => $canonical,
 			'personaName' => $personaName,
 			'avatarUrl' => $avatarUrl,
 			'activeNetworks' => $activeNetworks,
-			'detailsUrl' => 'https://banly.pl/check?' . http_build_query( array( 'q' => $canonical ) ),
+			'detailsUrl' => $detailsUrl,
 		);
 		if ( isset( $data['ecdScan'] ) && is_array( $data['ecdScan'] ) )
 		{
