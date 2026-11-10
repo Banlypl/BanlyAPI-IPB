@@ -11,7 +11,6 @@ class _Application extends \IPS\Application
 
 	public function acpMenu()
 	{
-		static::syncWidgetRow();
 		$menu = parent::acpMenu();
 
 		if ( \IPS\Dispatcher::hasInstance() AND \IPS\Dispatcher::i() instanceof \IPS\Dispatcher\Admin )

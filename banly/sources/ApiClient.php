@@ -19,23 +19,14 @@ class _ApiClient
 		}
 
 		$url = 'https://banly.pl/api/v2/widget?' . http_build_query( array( 'q' => $query ) );
-
-		try
-		{
-			$response = \IPS\Http\Url::external( $url )->request( 75 )
-				->setHeaders( array(
-					'Accept' => 'application/json',
-					'X-Banly-Plugin-Key' => $key,
-				) )
-				->get();
-		}
-		catch ( \Throwable $e )
+		$fetched = static::fetchJson( $url, $key );
+		if ( $fetched === NULL )
 		{
 			return array( 'ok' => false, 'error' => 'upstream' );
 		}
 
-		$httpStatus = (int) $response->httpResponseCode;
-		$data = json_decode( (string) $response, TRUE );
+		$httpStatus = (int) $fetched['status'];
+		$data = $fetched['data'];
 		if ( !is_array( $data ) )
 		{
 			return array( 'ok' => false, 'error' => 'upstream' );
@@ -59,6 +50,49 @@ class _ApiClient
 		}
 
 		return static::summarizePayload( $data, $query );
+	}
+
+	/** Ciche curl, bez IPS Http (bez system logow). */
+	protected static function fetchJson( $url, $key )
+	{
+		if ( !\function_exists( 'curl_init' ) )
+		{
+			return NULL;
+		}
+
+		$ch = curl_init( $url );
+		if ( $ch === FALSE )
+		{
+			return NULL;
+		}
+
+		curl_setopt_array( $ch, array(
+			CURLOPT_RETURNTRANSFER => TRUE,
+			CURLOPT_FOLLOWLOCATION => TRUE,
+			CURLOPT_CONNECTTIMEOUT => 8,
+			CURLOPT_TIMEOUT => 20,
+			CURLOPT_HTTPHEADER => array(
+				'Accept: application/json',
+				'X-Banly-Plugin-Key: ' . $key,
+			),
+			CURLOPT_USERAGENT => 'Banly-IPS-Widget/1.0.6',
+		) );
+
+		$raw = curl_exec( $ch );
+		$status = (int) curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+		$errno = curl_errno( $ch );
+		curl_close( $ch );
+
+		if ( $errno || $raw === FALSE || $raw === '' )
+		{
+			return NULL;
+		}
+
+		$data = json_decode( (string) $raw, TRUE );
+		return array(
+			'status' => $status > 0 ? $status : 0,
+			'data' => $data,
+		);
 	}
 
 	public static function summarizePayload( array $data, $fallbackQuery )

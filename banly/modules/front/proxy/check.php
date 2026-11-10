@@ -15,7 +15,19 @@ class _check extends \IPS\Dispatcher\Controller
 		try
 		{
 			\IPS\Session::i()->csrfCheck();
+		}
+		catch ( \Throwable $e )
+		{
+			\IPS\Output::i()->json( array(
+				'ok' => false,
+				'error' => 'upstream',
+				'message' => 'Nie udało się sprawdzić. Spróbuj później.',
+			) );
+			return;
+		}
 
+		try
+		{
 			$q = '';
 			if ( isset( \IPS\Request::i()->q ) )
 			{
